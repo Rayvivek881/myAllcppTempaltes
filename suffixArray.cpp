@@ -68,7 +68,7 @@ int cmp(struct suffix a, struct suffix b)
 	return (a.rank[0] == b.rank[0])? (a.rank[1] < b.rank[1] ?1: 0):
 			(a.rank[0] < b.rank[0] ?1: 0);
 }
-int *buildSuffixArray(string txt, int n)
+vi buildSuffixArray(string txt, int n)
 {
 	struct suffix suffixes[n];
 	for (int i = 0; i < n; i++)
@@ -106,7 +106,7 @@ int *buildSuffixArray(string txt, int n)
 		}
 		sort(suffixes, suffixes+n, cmp);
 	}
-	int *suffixArr = new int[n];
+	vi suffixArr(n);
 	for (int i = 0; i < n; i++)
 		suffixArr[i] = suffixes[i].index;
 	return suffixArr;
