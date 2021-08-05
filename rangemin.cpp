@@ -38,7 +38,7 @@ public:
         else update(2 * ind + 1, mid + 1, r, pos, val);
         Tree[ind] = myfunc(Tree[2 * ind], Tree[2 * ind + 1]);
     }
-    int quary(int ind, int l, int r, int start, int end)
+    T quary(int ind, int l, int r, int start, int end)
     {
         if (l >= start && r <= end)
             return Tree[ind];
@@ -47,8 +47,8 @@ public:
         else if (end <= mid) return quary(2 * ind, l, mid, start, end);
         else
         {
-            int a = quary(2 * ind + 1, mid + 1, r, mid + 1, end);
-            int b = quary(2 * ind, l, mid, start, mid);
+            T a = quary(2 * ind + 1, mid + 1, r, mid + 1, end);
+            T b = quary(2 * ind, l, mid, start, mid);
             return myfunc(a, b);
         }
     }
