@@ -1,13 +1,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 template <typename data>
-class BinearyLifting
+class BinaryLifting
 {
 public:
     int n, Log;
     vector<vector<data>> Table, Graph;
     vector<data> lavel;
-    BinearyLifting(int size, vector<vector<data>> & Tree) : n(size), Graph(Tree)
+    BinaryLifting(int size, vector<vector<data>> & Tree) : n(size), Graph(Tree)
     {
         lavel.assign(size, 0);
         Table.resize(size), Log = ceil(log2(size)) + 1;
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[])
         Tree[u - 1].push_back(v - 1);
         Tree[v - 1].push_back(u - 1);
     }
-    BinearyLifting<int> obj(n, Tree);
+    BinaryLifting<int> obj(n, Tree);
     cout << (obj.kthAnsester(8, 8));
     return 0; 
 }
