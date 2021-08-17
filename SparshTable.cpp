@@ -12,7 +12,7 @@ public:
     	{ buildTable(); }
 	void buildTable()
 	{
-		n = arr.size(), Log = ceil(log2((int)arr.size()));
+		n = arr.size(), Log = ceil(log2((int)arr.size())) + 5;
 		Table.resize(n);
 		for (int i = 0; i < n; i++)
 		{
