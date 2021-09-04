@@ -14,21 +14,20 @@ public:
     {
         Tree = new T[4 * size];
         lazy = new T[4 * size];
-        for (int i = 0; i < 4 * size; i++)
-            lazy[i] = 0;
         BuildTree(1, 0, n - 1);
     }
     void BuildTree(int ind, int l, int r)
     {
         if (l == r)
         {
-            Tree[ind] = lst[l];
+            Tree[ind] = lst[l], lazy[ind] = 0;
             return;
         }
         int mid = (l + r) >> 1;
         BuildTree(2 * ind, l, mid);
         BuildTree(2 * ind + 1, mid + 1, r);
         Tree[ind] = myfunc(Tree[2 * ind], Tree[2 * ind + 1]);
+        lazy[ind] = 0;
     }
     void updateUtil(int ind, int l, int r, int start, int end, T val)
     {
