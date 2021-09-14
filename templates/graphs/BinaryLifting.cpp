@@ -1,14 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 template <typename data>
-class BinaryLifting
-{
+class BinaryLifting {
 public:
     int n, Log;
     vector<data> *Graph, *Table;
     data *lavel;
-    BinaryLifting(int size, vector<vector<data>> & Tree) : n(size)
-    {
+    BinaryLifting(int size, vector<data> Tree[]) : n(size) {
         lavel = new data[size + 1];
         Graph = new vector<data>[size + 1];
         Table = new vector<data>[size + 1];
@@ -20,40 +18,32 @@ public:
         }
         PreDFS(0, 0);
     }
-    void PreDFS(data node, data par)
-    {
+    void PreDFS(data node, data par) {
         Table[node][0] = par;
         for (int i = 1; i < Log; i++)
             Table[node][i] = Table[Table[node][i - 1]][i - 1];
-        for (auto child : Graph[node])
-        {
+        for (auto child : Graph[node]) {
             if (child == par) continue;
             lavel[child] = lavel[node] + 1;
             PreDFS(child, node);
         }
     }
-    data LCA(data u, data v)
-    {
+    data LCA(data u, data v) {
         if (lavel[u] < lavel[v]) swap(u, v);
-        for (int i = Log - 1; i >= 0; i--)
-        {
+        for (int i = Log - 1; i >= 0; i--) {
             if (lavel[u] - pow(2, i) >= lavel[v])
                 u = Table[u][i];
         }
         if (u == v) return u;
-        for (int i = Log - 1; i >= 0; i--)
-        {
+        for (int i = Log - 1; i >= 0; i--) {
             if (Table[u][i] != Table[v][i])
                 u = Table[u][i], v = Table[v][i];
         }
         return Table[u][0];
     }
-    data kthAnsester(data node, int k)
-    {
-        for (int i = 0; i < Log; i++)
-        {
-            if (k & (1 << i))
-            {
+    data kthAnsester(data node, int k) {
+        for (int i = 0; i < Log; i++) {
+            if (k & (1 << i)) {
                 if ((1 << i) > lavel[node]) return -1;
                 node = Table[node][i];
             }
@@ -61,12 +51,10 @@ public:
         return node;
     }
 };
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
     int n; cin >> n;
-    vector<vector<int>> Tree(n);
-    for (int i = 0; i < n - 1; i++)
-    {
+    vector<int> Tree[n];
+    for (int i = 0; i < n - 1; i++) {
         int u, v;
         cin >> u >> v;
         Tree[u - 1].push_back(v - 1);
