@@ -5,14 +5,19 @@ class BinaryLifting
 {
 public:
     int n, Log;
-    vector<vector<data>> Table, Graph;
-    vector<data> lavel;
-    BinaryLifting(int size, vector<vector<data>> & Tree) : n(size), Graph(Tree)
+    vector<data> *Graph, *Table;
+    data *lavel;
+    BinaryLifting(int size, vector<vector<data>> & Tree) : n(size)
     {
-        lavel.assign(size, 0);
-        Table.resize(size), Log = ceil(log2(size)) + 1;
-        for (int i = 0; i < size; i++)
+        lavel = new data[size + 1];
+        Graph = new vector<data>[size + 1];
+        Table = new vector<data>[size + 1];
+        Log = ceil(log2(size)) + 1;
+        for (int i = 0; i < size; i++) {
             Table[i].resize(Log);
+            Graph[i] = Tree[i];
+            lavel[i] = 0;
+        }
         PreDFS(0, 0);
     }
     void PreDFS(data node, data par)
@@ -68,6 +73,6 @@ int main(int argc, char const *argv[])
         Tree[v - 1].push_back(u - 1);
     }
     BinaryLifting<int> obj(n, Tree);
-    cout << (obj.kthAnsester(8, 8));
+    cout << (obj.kthAnsester(5, 1));
     return 0; 
 }
