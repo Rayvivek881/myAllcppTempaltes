@@ -10,14 +10,15 @@ template <typename T, class func = function<T(const T &, const T &)>>
 class segmentTree
 {
 public:
-    T *Tree;
+    T *Tree, *lst;
     int n;
     func myfunc;
-    vector<T> lst;
     segmentTree(void) {};
-    void proceed(int size, vector<T> & arr, const func & F) {
-        lst = arr, myfunc = F, n = size;
+    void proceed(int size, T arr[], const func & F) {
+        myfunc = F, n = size;
         Tree = new T[4 * size];
+        lst = new T[size];
+        for (int i = 0; i < size; i++) lst[i] = arr[i];
         buildTree(1, 0, size - 1);
     };
     void buildTree(int ind, int l, int r) {
@@ -69,14 +70,15 @@ template <typename T, class func = function<T(const T &, const T &)>>
 class HeavyLight {
 public:
     T *level, *subSize, n, Log, ind = 0, lead = 0;
-    vector<T> *Graph, decompArr;
-    T *NodeValues, **Table;
+    vector<T> *Graph;
+    T *NodeValues, **Table, *decompArr;
     func myfunc;
     struct element *Nodeimf;
     segmentTree<T> myTree;
     HeavyLight(T size, vector<T> Tree[], T Values[], const func & F) : n(size), myfunc(F) {
         Log = ceil(log2(size)) + 1;
         level = new T[size + 1];
+        decompArr = new T[size + 1];
         NodeValues = new T[size + 1];
         Nodeimf = new struct element[size + 1];
         subSize = new T[size + 1];
@@ -89,7 +91,7 @@ public:
         }
         preDFS(0, 0); 
         Decomposition(0, 0);
-        myTree.proceed((T)decompArr.size(), decompArr, myfunc);
+        myTree.proceed(ind, decompArr, myfunc);
     }
     void preDFS(T node, T par = 0) {
         Table[node][0] = par;
@@ -117,7 +119,7 @@ public:
         return Table[u][0];
     }
     void Decomposition(T node, T par) {
-        decompArr.push_back(NodeValues[node]);
+        decompArr[ind] = (NodeValues[node]);
         Nodeimf[node] = {NodeValues[node], lead, ind++};
         T maxnode = -1, maxweight = 0;
         for (T & child : Graph[node]) {
@@ -151,7 +153,7 @@ public:
         T granpa = LCA(u, v);
         T ans1 = queryUtill(u, granpa), ans2 = queryUtill(v, granpa);
         Search[make_pair(u, v)] = max(ans1, ans2);
-        return max(ans1, ans2);
+        return myfunc(ans1, ans2);
     }
 };
 int main(int argc, char const *argv[])
