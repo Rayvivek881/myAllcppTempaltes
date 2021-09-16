@@ -65,33 +65,35 @@ public:
 struct element {
     int value, leader, index;
 };
+template <typename T, class func = function<T(const T &, const T &)>>
 class HeavyLight {
 public:
-    int *level, *subSize, n, Log, ind = 0, lead = 0;
-    vector<int> *Graph, *Table, decompArr;
-    int *NodeValues;
+    T *level, *subSize, n, Log, ind = 0, lead = 0;
+    vector<T> *Graph, *Table, decompArr;
+    T *NodeValues;
+    func myfunc;
     struct element *Nodeimf;
-    segmentTree<int> myTree;
-    HeavyLight(int size, vector<int> Tree[], int Values[]) : n(size) {
+    segmentTree<T> myTree;
+    HeavyLight(T size, vector<T> Tree[], T Values[], const func & F) : n(size), myfunc(F) {
         Log = ceil(log2(size)) + 1;
-        level = new int[size + 1];
-        NodeValues = new int[size + 1];
+        level = new T[size + 1];
+        NodeValues = new T[size + 1];
         Nodeimf = new struct element[size + 1];
-        subSize = new int[size + 1];
-        Graph = new vector<int>[size + 1];
-        Table = new vector<int>[size + 1];
-        for (int i = 0; i <= size; i++) {
+        subSize = new T[size + 1];
+        Graph = new vector<T>[size + 1];
+        Table = new vector<T>[size + 1][Log];
+        for (T i = 0; i <= size; i++) {
             level[i] = 0, subSize[i] = 0;
             Graph[i] = Tree[i], NodeValues[i] = Values[i];
             Table[i].resize(Log);
         }
         preDFS(0, 0); 
         Decomposition(0, 0);
-        myTree.proceed((int)decompArr.size(), decompArr, [&](int a , int b) { return max(a, b); });
+        myTree.proceed((T)decompArr.size(), decompArr, myfunc);
     }
-    void preDFS(int node, int par = 0) {
+    void preDFS(T node, T par = 0) {
         Table[node][0] = par;
-        for (int i = 1; i < Log; i++)
+        for (T i = 1; i < Log; i++)
             Table[node][i] = Table[Table[node][i - 1]][i - 1];
         for (auto & child : Graph[node]) {
             if (child == par) continue;
@@ -101,54 +103,53 @@ public:
         }
         subSize[node] += 1;
     }
-    int LCA(int u, int v) {
+    T LCA(T u, T v) {
         if (level[u] < level[v]) swap(u, v);
-        for (int i = Log - 1; i >= 0; i--) {
+        for (T i = Log - 1; i >= 0; i--) {
             if (level[u] - pow(2, i) >= level[v])
                 u = Table[u][i];
         }
         if (u == v) return u;
-        for (int i = Log - 1; i >= 0; i--) {
+        for (T i = Log - 1; i >= 0; i--) {
             if (Table[u][i] != Table[v][i])
                 u = Table[u][i], v = Table[v][i];
         }
         return Table[u][0];
     }
-    void Decomposition(int node, int par) {
+    void Decomposition(T node, T par) {
         decompArr.push_back(NodeValues[node]);
         Nodeimf[node] = {NodeValues[node], lead, ind++};
-        int maxnode = -1, maxweight = 0;
-        for (int & child : Graph[node]) {
+        T maxnode = -1, maxweight = 0;
+        for (T & child : Graph[node]) {
             if (child == par) continue;
             if (subSize[child] > maxweight)
                 maxweight = subSize[child], maxnode = child;
         }
         if (maxnode != -1) Decomposition(maxnode, node);
-        for (int & child : Graph[node]) {
+        for (T & child : Graph[node]) {
             if (child == par || child == maxnode) continue;
             lead = child;
             Decomposition(child, node);
         }
     }
-    int queryUtill(int node, int granpa) {
-        if (Nodeimf[node].leader == Nodeimf[granpa].leader) {
+    T queryUtill(T node, T granpa) {
+        if (Nodeimf[node].leader == Nodeimf[granpa].leader)
             return myTree.quary(Nodeimf[granpa].index, Nodeimf[node].index);
-        }
-        int ans = myTree.quary(Nodeimf[Nodeimf[node].leader].index, Nodeimf[node].index);
+        T ans = myTree.quary(Nodeimf[Nodeimf[node].leader].index, Nodeimf[node].index);
         node = Table[Nodeimf[node].leader][0];
-        return max(ans, queryUtill(node, granpa));
+        return myfunc(ans, queryUtill(node, granpa));
     }
-    void update(int node, int val) {
+    void update(T node, T val) {
         myTree.update(Nodeimf[node].index, val);
         Nodeimf[node].value = val;
         Search.clear();
     }
-    int qyery(int u, int v) {
+    T qyery(T u, T v) {
         if (u > v) swap(u, v);
         if (Search.find(make_pair(u, v)) != Search.end())
             return Search[make_pair(u, v)];
-        int granpa = LCA(u, v);
-        int ans1 = queryUtill(u, granpa), ans2 = queryUtill(v, granpa);
+        T granpa = LCA(u, v);
+        T ans1 = queryUtill(u, granpa), ans2 = queryUtill(v, granpa);
         Search[make_pair(u, v)] = max(ans1, ans2);
         return max(ans1, ans2);
     }
@@ -168,7 +169,7 @@ int main(int argc, char const *argv[])
         graph[u].push_back(v);
         graph[v].push_back(u);
     }
-    HeavyLight cpheard(n, graph, values);
+    HeavyLight<int> cpheard(n, graph, values, [&](int a, int b) { return max(a, b); });
     while (q--) {
         int flage, pos, val, a, b; cin >> flage;
         cin >> pos >> val;
