@@ -69,8 +69,8 @@ template <typename T, class func = function<T(const T &, const T &)>>
 class HeavyLight {
 public:
     T *level, *subSize, n, Log, ind = 0, lead = 0;
-    vector<T> *Graph, *Table, decompArr;
-    T *NodeValues;
+    vector<T> *Graph, decompArr;
+    T *NodeValues, **Table;
     func myfunc;
     struct element *Nodeimf;
     segmentTree<T> myTree;
@@ -81,11 +81,11 @@ public:
         Nodeimf = new struct element[size + 1];
         subSize = new T[size + 1];
         Graph = new vector<T>[size + 1];
-        Table = new vector<T>[size + 1][Log];
+        Table = new T* [size + 1];
         for (T i = 0; i <= size; i++) {
             level[i] = 0, subSize[i] = 0;
             Graph[i] = Tree[i], NodeValues[i] = Values[i];
-            Table[i].resize(Log);
+            Table[i] = new T[Log];
         }
         preDFS(0, 0); 
         Decomposition(0, 0);
