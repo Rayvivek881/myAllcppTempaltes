@@ -2,19 +2,16 @@
 using namespace std;
 #define ll long long
 const ll inf = INT32_MIN, N = 2e5 + 10;
-struct element
-{
+struct element {
     ll ans = 0, pref = 0, suf = 0, sum = 0;
 };
 template<typename T>
-class maxsumTree
-{
+class maxsumTree {
 public:
     int n;
     struct element *Tree;
     vector<T> lst;
-    maxsumTree(int n, vector<T> & arr) : lst(arr), n(n)
-    {
+    maxsumTree(int n, vector<T> & arr) : lst(arr), n(n) {
         Tree = new struct element[4 * n];
         buildTree(1, 0, n - 1);
     }
