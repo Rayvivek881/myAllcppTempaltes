@@ -5,18 +5,19 @@ class spashTable {
 public:
     int n, Log;
     func myfunc;
-    vector<vector<T>> Table;
-	vector<T> arr;
-    spashTable(vector<T> & lst, const func & F) : myfunc(F), arr(lst)
-    	{ buildTable(); }
+    T **Table, *arr;
+    spashTable(vector<T> & lst, const func & F) : myfunc(F) { 
+        n = lst.size(), Log = ceil(log2((int)lst.size())) + 5;
+        arr = new T[n + 1];
+        Table = new T*[n + 1];
+        for(int i = 0; i < n; i++) {
+            Table[i] = new T[Log];
+            arr[i] = lst[i], Table[i][0] = lst[i];
+        }
+        buildTable();
+    }
 	void buildTable() {
-		n = arr.size(), Log = ceil(log2((int)arr.size())) + 5;
-		Table.resize(n);
-		for (int i = 0; i < n; i++) {
-			Table[i].resize(Log);
-			Table[i][0] = arr[i];
-		}
-		for (int j = 1; j <= Log; j++){
+		for (int j = 1; j <= Log; j++) {
 			for (int i = 0; (i + (1 << j) - 1) < n; i++)
 				Table[i][j] = myfunc(Table[i][j - 1], Table[i + (1 << (j - 1))][j - 1]);
 		}
