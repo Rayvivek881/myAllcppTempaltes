@@ -5,12 +5,12 @@ using namespace std;
 template <typename T, class func = function<T(const T &, const T &)>>
 class rangeTree {
 public:
-    T *Tree;
+    T *Tree, d;
     pair<T, T> *lazy;
     int n;
     func myfunc;
     vector<T> lst;
-    rangeTree(int size, vector<T> & arr, const func & F) : lst(arr), n(size), myfunc(F) { 
+    rangeTree(int size, vector<T> & arr, const func & F, T d) : lst(arr), n(size), myfunc(F), d(d) { 
         Tree = new T[4 * size];
         lazy = new pair<T, T>[4 * size];
         BuildTree(1, 0, size - 1);
@@ -33,7 +33,7 @@ public:
     void updateUtil(int ind, int l, int r, int start, int end, T val) {
         if (l >= start && r <= end) {
             lazy[ind].first += val;
-            lazy[ind].second++;
+            lazy[ind].second += d;
         }
         int mid = (l + r) >> 1;
         if (lazy[ind].first != 0) { // 75 -> 81 28
