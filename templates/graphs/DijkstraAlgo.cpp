@@ -15,6 +15,19 @@ void Dijkstra(vector<pair<int, int>> adj[], vector<int> & ans, int src) {
         }
     }
 }
+void sortestPath(int src) {
+    queue<int> que;
+    path[src] = 0; que.push(src);
+    while (!que.empty()) {
+        int node = que.front();
+        que.pop();
+        for (int child : Graph[node]) {
+            if (path[child] != inf) continue;
+            path[child] = path[node] + 1;
+            que.push(child);
+        }
+    }
+}
 int main(int argc, char const *argv[])
 {
     int n, m; cin >> n >> m;
