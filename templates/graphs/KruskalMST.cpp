@@ -1,24 +1,20 @@
 template <typename mydata>
-class UnionFind
-{
+class UnionFind {
 public:
     int n;
     vector<mydata> parent, rank;
-    UnionFind(int size) : n(size) 
-    {
+    UnionFind(int size) : n(size) {
         parent.resize(size);
         rank.assign(size, 0);
         for (int i = 0; i < size; i++)
             parent[i] = i;
     }
-    mydata find(mydata x)
-    {
+    mydata find(mydata x) {
         if (parent[x] != x)
             parent[x] = find(parent[x]);
         return parent[x];
     }
-    void Union(mydata a, mydata b)
-    {
+    void Union(mydata a, mydata b) {
         mydata aset = find(a), bset = find(b);
         if (aset == bset) return ;
         if (rank[aset] < rank[bset])
