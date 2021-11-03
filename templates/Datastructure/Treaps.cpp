@@ -31,7 +31,7 @@ public:
         temp->value = val;
         Merge(root, root, temp);
     }
-    T at(int ind) { return valueAt(root, ind, 0); }
+    T operator[] (int ind) { return valueAt(root, ind, 0); }
     T valueAt(pelement Node, int key, int add) {
 		push(Node);
 		int curkey = size(Node->left) + add;
@@ -125,7 +125,7 @@ int main(int argc, char const *argv[])
     }
     for (int i = 0; i < m; i++) {
         int x; cin >> x;
-        cout << Treap.at(x - 1) << ' ';
+        cout << Treap[x - 1] << ' ';
     }
     return 0;
 }
