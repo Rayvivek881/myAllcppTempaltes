@@ -11,6 +11,19 @@ struct element {
         prior = rand();
     }
 };
+template #include<bits/stdc++.h>
+#define boost ios_base::sync_with_stdio(false); cin.tie(nullptr);
+using namespace std;
+typedef struct element* pelement;
+struct element {
+    int cnt, prior, rev, value; 
+    struct element *left, *right;
+    element() {
+        left = NULL, right = NULL;
+        cnt = 0, rev = 0;
+        prior = rand();
+    }
+};
 template <typename T>
 class ImplicitTreaps {
 public:
@@ -22,11 +35,12 @@ public:
         return (Node != NULL) ? Node->cnt : 0;
     }
     void Update_size (pelement Node) {
+        if (Node == NULL) return ;
         push(Node->left), push(Node->right);
         Node->cnt = 1 + size(Node->left) + size(Node->right);
     }
     bool empty() { return size(root) == 0; }
-    void insert(T val) {
+    void push_back(T val) {
         pelement temp = new struct element();
         temp->value = val;
         Merge(root, root, temp);
