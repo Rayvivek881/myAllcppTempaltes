@@ -7,7 +7,7 @@ struct Query {
         return r < obj.r;
     }
 };
-template<typename T>
+template<typename T> // please use only array
 class MOsAlgo {
     T ans;
     int *lst, *Freq, n, l, r;
