@@ -1,145 +1,153 @@
 #include<bits/stdc++.h>
-#define boost ios_base::sync_with_stdio(false); cin.tie(nullptr);
 using namespace std;
-typedef struct element* pelement;
-struct element {
-    int value, cnt, prior, rev; 
-    struct element *left, *right;
-    element() {
-        left = NULL, right = NULL;
-        cnt = 0, rev = 0;
-        prior = rand();
+typedef struct Node* Pnode;
+struct Node {
+    int Value, cnt, prior, rev;
+    struct Node *child[2];
+    Node() {
+        child[0] = child[1] = NULL;
+        cnt = 0, rev = 0, prior = rand();
     }
 };
-template #include<bits/stdc++.h>
-#define boost ios_base::sync_with_stdio(false); cin.tie(nullptr);
-using namespace std;
-typedef struct element* pelement;
-struct element {
-    int cnt, prior, rev, value; 
-    struct element *left, *right;
-    element() {
-        left = NULL, right = NULL;
-        cnt = 0, rev = 0;
-        prior = rand();
-    }
-};
-template <typename T>
+template<typename T>
 class ImplicitTreaps {
+private:
+    struct Node *root = NULL;
+    int size(Pnode node) { return (node != NULL) ? node->cnt : 0; }
+    void Update_size(Pnode node) {
+        if (node == NULL) return ;
+        push(node->child[0]), push(node->child[1]);
+        node->cnt = 1 + size(node->child[0]) + size(node->child[1]);
+    }
+    void push(Pnode node) {
+        if (node == NULL || node->rev == 0) return ;
+        node->rev = false;
+        swap(node->child[0], node->child[1]);
+        if (node->child[0] != NULL)
+            node->child[0]->rev ^= true;
+        if (node->child[1] != NULL)
+            node->child[1]->rev ^= true;
+    }
+    T ValueAt(Pnode node, int Key, int add) {
+        push(node);
+        int curkey = size(node->child[0]) + add;
+        if (curkey == Key) return node->Value;
+        if (Key < curkey) return ValueAt(node->child[0], Key, add);
+        else return ValueAt(node->child[1], Key, curkey + 1);
+    }
+    void Merge(Pnode & node, Pnode left, Pnode right) {
+        push(left), push(right);
+        if (left == NULL || right == NULL)
+            node = (left != NULL) ? left : right;
+        else if (left->prior > left->prior)
+            Merge(left->child[1], left->child[1], right), node = left;
+        else Merge(right->child[0], left, right->child[0]), node = right;
+        Update_size(node);
+    }
+    void Split(Pnode node, Pnode & left, Pnode & right, int key, int add = 0) {
+        if (node == NULL) return void(left = right = NULL);
+        push(node);
+        int curr_key = add + size(node->child[0]);
+        if(key <= curr_key) {
+            Split(node->child[0], left, node->child[0], key, add);
+            right = node;
+        } else {
+            Split(node->child[1], node->child[1], right, key, add + 1 + size(node->child[0]));
+            left = node;
+        }
+        Update_size(node);
+    }
+    void erase(int index, Pnode & node, int add = 0) {
+        if (node == NULL) return ;
+        push(node);
+        int curkey = size(node->child[0]) + add;
+        if (curkey == index) {
+            Pnode it = node;
+            Merge(node, node->child[0], node->child[1]);
+            delete it;
+        } else if (curkey > index) {
+            erase(index, node->child[0], add);
+        } else erase(index, node->child[1], curkey + 1);
+        Update_size(node);
+    }
+    void replace(int index, Pnode & node, T Value, int add = 0) {
+        if (node == NULL) return ;
+        push(node);
+        int curkey = size(node->child[0]) + add;
+        if (curkey == index) {
+            node->Value = Value;
+        } else if (curkey > index) {
+            replace(index, node->child[0], Value, add);
+        } else replace(index, node->child[1], Value, curkey + 1);
+        Update_size(node);
+    }
 public:
-    pelement root = NULL;
-    int size() {
-        return size(root);
-    }
-    int size(pelement Node) {
-        return (Node != NULL) ? Node->cnt : 0;
-    }
-    void Update_size (pelement Node) {
-        if (Node == NULL) return ;
-        push(Node->left), push(Node->right);
-        Node->cnt = 1 + size(Node->left) + size(Node->right);
-    }
+    int size() { return size(root); }
     bool empty() { return size(root) == 0; }
-    void push_back(T val) {
-        pelement temp = new struct element();
-        temp->value = val;
+    T operator[] (int ind) { return ValueAt(root, ind, 0); }
+    void erase(int index) { return erase(index, root); }
+    void repalce(int ind, T Value) { return replace(ind, root, Value); }
+    void push_back(T Value) {
+        Pnode temp = new struct Node();
+        temp->Value = Value;
         Merge(root, root, temp);
     }
-    T operator[] (int ind) { return valueAt(root, ind, 0); }
-    T valueAt(pelement Node, int key, int add) {
-		push(Node);
-		int curkey = size(Node->left) + add;
-		if(key == curkey) return Node->value;
-		if(key < curkey) return valueAt(Node->left, key, add);
-		return valueAt(Node->right, key, curkey + 1);
-	}
-    void insertAt(int index, T val) {
-        pelement temp = new struct element();
-        temp->value = val;
-        pelement left, right;
+    void insert(int index, T Value) {
+        Pnode temp = new struct Node();
+        temp->Value = Value;
+        Pnode left, right;
         Split(root, left, right, index);
         Merge(left, left, temp);
         Merge(root, left, right);
     }
-    void erase(int index) { erase(index, root); }
-    void erase(int index, pelement & Node, int add = 0) {
-		if(Node == NULL) return ;
-		push(Node);
-		int curkey = size(Node->left) + add;
-		if(curkey == index){
-			pelement it = Node;
-			Merge(Node, Node->left, Node->right);
-			delete it;
-		}
-		else if(curkey > index) erase(index, Node->left, add);
-		else erase(index, Node->right, curkey + 1);
-		Update_size(Node);
-	}
-    void push(pelement Node) {
-        if (Node && Node->rev) {
-            Node->rev = false;
-            swap(Node->left, Node->right);
-            if (Node->left) Node->left->rev ^= true;
-            if (Node->right) Node->right->rev ^= true;
-        }
-    }
-    void Merge(pelement & Node, pelement left, pelement right) {
-        push(left), push(right);
-        if (!left || !right)
-            Node = left != NULL ? left : right;
-        else if (left->prior > right->prior)
-            Merge(left->right, left->right, right), Node = left;
-        else Merge(right->left, left, right->left), Node = right;
-        Update_size(Node);
-    }
-    void Split(pelement Node, pelement & left, pelement & right, int key, int add = 0) {
-        if (Node == NULL) return void(left = right = NULL);
-        push(Node);
-        int curr_key = add + size(Node->left);
-        if (key <= curr_key)
-            Split(Node->left, left, Node->left, key, add),  right = Node;
-        else {
-            Split(Node->right, Node->right, right, key, add + 1 + size(Node->left));
-            left = Node;
-        }
-        Update_size(Node);
-    }
     void reverse(int l, int r) {
-        pelement a, b, c;
+        Pnode a, b, c;
         Split(root, a, b, l);
         Split(b, b, c, r - l + 1);
         b->rev = true;
         Merge(root, a, b);
         Merge(root, root, c);
     }
-    void cycle_shift(int l, int r) {
-        pelement left, right, m, rr;
+    void cycle_shift(int l, int r, int cnt = 1) {
+        Pnode left, right, m, rr;
         Split(root, left, m, l);
         Split(m, m, right, r - l);
-		Split(right, rr, right, 1);
-		Merge(m, m, right);
-		Merge(rr, rr, m);
-		Merge(root, left, rr);
+        Split(right, rr, right, cnt);
+        Merge(m, m, right);
+        Merge(rr, rr, m);
+        Merge(root, left, rr);
     }
 };
 int main(int argc, char const *argv[])
 {
-    boost;
-    int n, q, m; cin >> n >> q >> m;
+    int n, q; cin >> n >> q;
     ImplicitTreaps<int> Treap;
     for(int i = 0; i < n; i++) {
         int x; cin >> x;
-        Treap.insert(x);
+        Treap.push_back(x);
     }
+    for (int i = 0; i < Treap.size(); i++) cout << Treap[i] << ' ';
+    cout << endl;
     while (q--) {
-        int flage, l, r; cin >> flage >> l >> r;
-        if (l == r) continue;
-        if (flage == 1) Treap.cycle_shift(l - 1, r - 1);
-        else Treap.reverse(l - 1, r - 1);
-    }
-    for (int i = 0; i < m; i++) {
-        int x; cin >> x;
-        cout << Treap[x - 1] << ' ';
+        int f; cin >> f;
+        if (f == 1) {
+            int x; cin >> x;
+            Treap.push_back(x);
+        } else if (f == 2) {
+            int x, i; cin >> x >> i;
+            Treap.insert(i, x);
+        } else if (f == 3) {
+            int i; cin >> i;
+            Treap.erase(i);
+        } else if (f == 4) {
+            int l, r; cin >> l >> r;
+            Treap.reverse(l, r);
+        } else {
+            int l, r, cnt; cin >> l >> r;
+            Treap.cycle_shift(l, r);
+        }
+        for (int i = 0; i < Treap.size(); i++) cout << Treap[i] << ' ';
+        cout << endl;
     }
     return 0;
 }
