@@ -114,6 +114,7 @@ public:
         Split(m, m, right, r - l + 1 - cnt);
         Split(right, rr, right, cnt);
         Merge(m, m, right);
+        rr->rev = true;
         Merge(rr, rr, m);
         Merge(root, left, rr);
     }
