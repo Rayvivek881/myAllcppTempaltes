@@ -111,7 +111,7 @@ public:
     void cycle_shift(int l, int r, int cnt = 1) {
         Pnode left, right, m, rr;
         Split(root, left, m, l);
-        Split(m, m, right, r - l);
+        Split(m, m, right, r - l + 1 - cnt);
         Split(right, rr, right, cnt);
         Merge(m, m, right);
         Merge(rr, rr, m);
