@@ -114,8 +114,8 @@ public :
             level[i] = 0, subSize[i] = 0, parent[i] = 0;
             Graph[i] = Tree[i], NodeValues[i] = Values[i];
         }
-        PreDFS(0, 0);
-        Decomposition(0, 0);
+        PreDFS(1, 0);
+        Decomposition(1, 0);
         myTree.proceed(ind, decompArr, myfunc);
         lst.resize(dp.size());
         for (int i = 0; i < dp.size(); i++) lst[i] = level[dp[i]];
@@ -174,13 +174,12 @@ int main(int argc, char const *argv[])
     boost;
     int n, u, v, q, ind = 0; 
     cin >> n >> q;
-    int values[n], answers[q];
-    for (int i = 0; i < n; i++) cin >> values[i];
+    int values[n + 1], answers[q];
+    for (int i = 1; i < n + 1; i++) cin >> values[i];
     vector<int> graph[n + 1];
     for (int i = 0; i < n - 1; i++)
     {
         cin >> u >> v;
-        u--, v--;
         graph[u].push_back(v);
         graph[v].push_back(u);
     }
@@ -188,8 +187,8 @@ int main(int argc, char const *argv[])
     while (q--) {
         int flage, pos, val, a, b; cin >> flage;
         cin >> pos >> val;
-        if (flage == 1) cphard.update(pos - 1, val);
-        else answers[ind++] = (cphard.query(pos - 1, val - 1));
+        if (flage == 1) cphard.update(pos, val);
+        else answers[ind++] = (cphard.query(pos, val));
     }
     for (int i = 0; i < ind; i++) cout << answers[i] << " ";
     return 0;
