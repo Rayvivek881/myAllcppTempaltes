@@ -1,14 +1,8 @@
-#include <bits/stdc++.h>
-#pragma GCC optimize("O1")
-#pragma GCC optimize("O2")
-#pragma GCC optimize("Ofast")
-#pragma GCC target("avx,avx2,fma")
+#include<bits/stdc++.h>
 using namespace std;
-#define boost ios_base::sync_with_stdio(false); cin.tie(nullptr);
-map<pair<int, int>, int> Search;
+#define boost ios_base::sync_with_stdio(false), cin.tie(nullptr);
 template <typename T, class func = function<T(const T &, const T &)>>
-class segmentTree
-{
+class segmentTree {
 public:
     T *Tree, *lst;
     int n;
@@ -63,60 +57,83 @@ public:
         return ans;
     }
 };
+template <typename T, class func = function<T(const T &, const T &)>>
+class spashTable {
+public:
+    int n, Log;
+    func myfunc;
+    T **Table, *arr;
+    spashTable(void) {}
+    void Procced(vector<T> & lst, const func & F) { 
+        n = lst.size(), Log = ceil(log2((int)lst.size())) + 5;
+        arr = new T[n + 1];
+        Table = new T*[n + 1];
+        for(int i = 0; i < n; i++) {
+            Table[i] = new T[Log];
+            arr[i] = lst[i], Table[i][0] = i;
+        }
+        myfunc = F;
+        buildTable();
+    }
+	void buildTable() {
+		for (int j = 1; j <= Log; j++) {
+			for (int i = 0; (i + (1 << j) - 1) < n; i++)
+				Table[i][j] = myfunc(Table[i][j - 1], Table[i + (1 << (j - 1))][j - 1]);
+		}
+	}
+	T query(int l, int r) {
+		int j = log2(r - l + 1);
+		return myfunc(Table[l][j], Table[r - (1 << j) + 1][j]);
+	}
+};
 struct element {
     int value, leader, index;
 };
 template <typename T, class func = function<T(const T &, const T &)>>
 class HeavyLight {
-public:
-    T *level, *subSize, n, Log, ind = 0, lead = 0;
-    vector<T> *Graph;
-    T *NodeValues, **Table, *decompArr;
+public :
+    T *level, *subSize, n, Log, ind = 0, lead = 0, Time = 0;
+    vector<T> *Graph, dp, lst;
+    T *NodeValues, *decompArr, *inTime, *outTime, *parent;
     func myfunc;
     struct element *Nodeimf;
+    spashTable<T> lcaTable;
     segmentTree<T> myTree;
-    HeavyLight(T size, vector<T> Tree[], T Values[], const func & F) : n(size), myfunc(F) {
-        Log = ceil(log2(size)) + 1;
-        level = new T[size + 1];
-        decompArr = new T[size + 1];
-        NodeValues = new T[size + 1];
-        Nodeimf = new struct element[size + 1];
-        subSize = new T[size + 1];
-        Graph = new vector<T>[size + 1];
-        Table = new T* [size + 1];
-        for (T i = 0; i <= size; i++) {
-            level[i] = 0, subSize[i] = 0;
+    HeavyLight(int n, vector<T> Tree[], T Values[], const func & F) : n(n), myfunc(F) {
+        Log = ceil(log2(n)) + 1;
+        level = new T[n + 1];
+        parent = new T[n + 1];
+        decompArr = new T[n + 1];
+        NodeValues = new T[n + 1];
+        Nodeimf = new struct element[n + 1];
+        subSize = new T[n + 1];
+        Graph = new vector<T>[n + 1];
+        inTime = new T [n + 1];
+        outTime = new T [n + 1];
+        for (int i = 0; i <= n; i++) {
+            level[i] = 0, subSize[i] = 0, parent[i] = 0;
             Graph[i] = Tree[i], NodeValues[i] = Values[i];
-            Table[i] = new T[Log];
         }
-        preDFS(0, 0); 
+        PreDFS(0, 0);
         Decomposition(0, 0);
         myTree.proceed(ind, decompArr, myfunc);
+        lst.resize(dp.size());
+        for (int i = 0; i < dp.size(); i++) lst[i] = level[dp[i]];
+        lcaTable.Procced(lst, [&](int i, int j) {
+            if (lst[i] <= lst[j]) return i; else return j;
+        });
     }
-    void preDFS(T node, T par = 0) {
-        Table[node][0] = par;
-        for (T i = 1; i < Log; i++)
-            Table[node][i] = Table[Table[node][i - 1]][i - 1];
+    void PreDFS(T node, T par = 0) {
+        dp.push_back(node);
+        inTime[node] = Time++, parent[node] = par;
         for (auto & child : Graph[node]) {
             if (child == par) continue;
             level[child] = level[node] + 1;
-            preDFS(child, node);
+            PreDFS(child, node);
             subSize[node] += subSize[child];
+            dp.push_back(node), outTime[node] = Time++;
         }
         subSize[node] += 1;
-    }
-    T LCA(T u, T v) {
-        if (level[u] < level[v]) swap(u, v);
-        for (T i = Log - 1; i >= 0; i--) {
-            if (level[u] - pow(2, i) >= level[v])
-                u = Table[u][i];
-        }
-        if (u == v) return u;
-        for (T i = Log - 1; i >= 0; i--) {
-            if (Table[u][i] != Table[v][i])
-                u = Table[u][i], v = Table[v][i];
-        }
-        return Table[u][0];
     }
     void Decomposition(T node, T par) {
         decompArr[ind] = (NodeValues[node]);
@@ -138,21 +155,17 @@ public:
         if (Nodeimf[node].leader == Nodeimf[granpa].leader)
             return myTree.quary(Nodeimf[granpa].index, Nodeimf[node].index);
         T ans = myTree.quary(Nodeimf[Nodeimf[node].leader].index, Nodeimf[node].index);
-        node = Table[Nodeimf[node].leader][0];
+        node = parent[Nodeimf[node].leader];
         return myfunc(ans, queryUtill(node, granpa));
     }
     void update(T node, T val) {
         myTree.update(Nodeimf[node].index, val);
         Nodeimf[node].value = val;
-        Search.clear();
     }
-    T qyery(T u, T v) {
-        if (u > v) swap(u, v);
-        if (Search.find(make_pair(u, v)) != Search.end())
-            return Search[make_pair(u, v)];
-        T granpa = LCA(u, v);
+    T query(T u, T v) {
+        if (inTime[u] >= inTime[v]) swap(u, v);
+        T granpa = dp[lcaTable.query(inTime[u], inTime[v])];
         T ans1 = queryUtill(u, granpa), ans2 = queryUtill(v, granpa);
-        Search[make_pair(u, v)] = max(ans1, ans2);
         return myfunc(ans1, ans2);
     }
 };
@@ -171,12 +184,12 @@ int main(int argc, char const *argv[])
         graph[u].push_back(v);
         graph[v].push_back(u);
     }
-    HeavyLight<int> cpheard(n, graph, values, [&](int a, int b) { return max(a, b); });
+    HeavyLight<int> cphard(n, graph, values, [&](int a, int b) { return max(a, b); });
     while (q--) {
         int flage, pos, val, a, b; cin >> flage;
         cin >> pos >> val;
-        if (flage == 1) cpheard.update(pos - 1, val);
-        else answers[ind++] = (cpheard.qyery(pos - 1, val - 1));
+        if (flage == 1) cphard.update(pos - 1, val);
+        else answers[ind++] = (cphard.query(pos - 1, val - 1));
     }
     for (int i = 0; i < ind; i++) cout << answers[i] << " ";
     return 0;
