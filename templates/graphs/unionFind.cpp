@@ -3,9 +3,9 @@ using namespace std;
 template <typename mydata>
 class UnionFind {
 public:
-    int n;
+    int Components;
     vector<mydata> parent, rank;
-    UnionFind(int size) : n(size) {
+    UnionFind(int size) : Components(size) {
         parent.resize(size);
         rank.assign(size, 0);
         for (int i = 0; i < size; i++)
@@ -16,9 +16,11 @@ public:
             parent[x] = find(parent[x]);
         return parent[x];
     }
+    int size() { return Components; }
     void Union(mydata a, mydata b) {
         mydata aset = find(a), bset = find(b);
         if (aset == bset) return ;
+        Components--;
         if (rank[aset] < rank[bset])
             parent[aset] = bset;
         else if (rank[aset] > rank[bset])
