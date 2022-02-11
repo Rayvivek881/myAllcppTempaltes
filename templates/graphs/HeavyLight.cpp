@@ -92,7 +92,7 @@ struct element {
 template <typename T, class func = function<T(const T &, const T &)>>
 class HeavyLight {
 public :
-    T *level, *subSize, n, Log, ind = 0, lead = 0, Time = 0;
+    T *level, *subSize, n, ind = 0, lead = 0, Time = 0;
     vector<T> *Graph, dp, lst;
     T *NodeValues, *decompArr, *inTime, *outTime, *parent;
     func myfunc;
@@ -100,7 +100,6 @@ public :
     spashTable<T> lcaTable;
     segmentTree<T> myTree;
     HeavyLight(int n, vector<T> Tree[], T Values[], const func & F) : n(n), myfunc(F) {
-        Log = ceil(log2(n)) + 1;
         level = new T[n + 1];
         parent = new T[n + 1];
         decompArr = new T[n + 1];
