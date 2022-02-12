@@ -1,24 +1,24 @@
 #include <bits/stdc++.h>
 using namespace std;
-template <typename mydata>
+template <typename T>
 class UnionFind {
 public:
     int Components;
-    vector<mydata> parent, rank;
+    vector<T> parent, rank;
     UnionFind(int size) : Components(size) {
         parent.resize(size);
         rank.assign(size, 0);
         for (int i = 0; i < size; i++)
             parent[i] = i;
     }
-    mydata find(mydata x) {
+    T find(T x) {
         if (parent[x] != x)
             parent[x] = find(parent[x]);
         return parent[x];
     }
     int size() { return Components; }
-    void Union(mydata a, mydata b) {
-        mydata aset = find(a), bset = find(b);
+    void Union(T a, T b) {
+        T aset = find(a), bset = find(b);
         if (aset == bset) return ;
         Components--;
         if (rank[aset] < rank[bset])
