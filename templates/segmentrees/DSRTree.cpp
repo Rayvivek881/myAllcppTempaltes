@@ -1,21 +1,22 @@
 #include<bits/stdc++.h>
 using namespace std;
+template<typename T>
+struct element {
+    T value, lazy;
+    struct element *child[2];
+};
 template<typename T, class func = function<T(const T &, const T &)>>
 class DSRTree {
     T n, temp = 0;
-    struct element {
-        T value, lazy;
-        struct element *child[2];
-    };
-    element * getNode() {
-        struct element *node = new struct element();
+    element<T> *getNode() {
+        struct element<T> *node = new struct element<T>();
         node->lazy = node->value = 0;
         node->child[0] = node->child[1] = NULL;
         return node;
     }
     func myfunc;
-    struct element *root = getNode();
-    void helperLazy(element * ptr, T size) {
+    struct element<T> *root = getNode();
+    void helperLazy(element<T> * ptr, T size) {
         if (ptr->child[0] == NULL)
             ptr->child[0] = getNode();
         if (ptr->child[1] == NULL)
@@ -25,7 +26,7 @@ class DSRTree {
         ptr->child[1]->lazy += ptr->lazy;
         ptr->lazy = 0;
     }
-    void update(element * ptr, T l, T r, T l1, T r1, T value) {
+    void update(element<T> * ptr, T l, T r, T l1, T r1, T value) {
         if (l >= l1 && r <= r1)
             ptr->lazy += value;
         helperLazy(ptr, r - l + 1);
@@ -36,7 +37,7 @@ class DSRTree {
         update(ptr->child[1], mid + 1, r, l1, r1, value);
         ptr->value = myfunc(ptr->child[0]->value, ptr->child[1]->value);
     }
-    T query(element * ptr, T l, T r, T l1, T r1) {
+    T query(element<T> * ptr, T l, T r, T l1, T r1) {
         helperLazy(ptr, r - l + 1);
         if (l >= l1 && r <= r1) 
             return ptr->value;
