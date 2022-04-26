@@ -1,28 +1,34 @@
 #include<bits/stdc++.h>
 using namespace std;
+template<typename T>
+struct element {
+    T value;
+    struct element *child[2];
+};
 template<typename T = int, class func = function<T(const T &, const T &)>>
 class DSPTree {
     T n, defaultvalue;
-    struct element {
-        T value;
-        struct element *child[2];
-        element () { 
-            child[0] = child[1] = NULL;
-            value = 0;
-        }
-    };
+    element<T> *getNode() {
+        struct element<T> *node = new struct element<T>();
+        node->child[0] = node->child[1] = NULL;
+        node->value = 0;
+        return node;
+    }
     func myfunc;
-    struct element *root = new struct element();
-    void update(element * ptr, int l, int r, int pos, T value) {
+    struct element<T> *root = getNode();
+    void helperLazy(element<T> * ptr, T size) {
+        if (ptr->child[0] == NULL)
+            ptr->child[0] = getNode();
+        if (ptr->child[1] == NULL)
+            ptr->child[1] = getNode();
+    }
+    void update(element<T> * ptr, T l, T r, T pos, T value) {
         if (l == r) {
             ptr->value = value;
             return ;
         }
         T mid = (l + r) >> 1;
-        if (ptr->child[0] == NULL)
-            ptr->child[0] = new struct element();
-        if (ptr->child[1] == NULL)
-            ptr->child[1] = new struct element();
+        helperLazy(ptr, r - l + 1);
         if (pos <= mid) {
             update(ptr->child[0], l, mid, pos, value);
         } else {
@@ -30,14 +36,11 @@ class DSPTree {
         }
         ptr->value = myfunc(ptr->child[0]->value, ptr->child[1]->value);
     }
-    T query(element * ptr, int l, int r, int l1, int r1) {
+    T query(element<T> * ptr, T l, T r, T l1, T r1) {
         if (l >= l1 && r <= r1)
             return ptr->value;
         T mid = (l + r) >> 1;
-        if (ptr->child[0] == NULL)
-            ptr->child[0] = new struct element();
-        if (ptr->child[1] == NULL)
-            ptr->child[1] = new struct element();
+        helperLazy(ptr, r - l + 1);
         if (l1 > mid) {
             return query(ptr->child[1], mid + 1, r, l1, r1);
         } else if (r1 <= mid) {
@@ -49,13 +52,13 @@ class DSPTree {
         }
     }
 public:
-    DSPTree(int size, T value, const func & F) : myfunc(F) {
+    DSPTree(T size, T value, const func & F) : myfunc(F) {
         this->n = size, this->defaultvalue = value;
     }
-    void update(int pos, T value) {
+    void update(T pos, T value) {
         return update(root, 0, n - 1, pos, value);
     }
-    T query(int l, int r) {
+    T query(T l, T r) {
         return query(root, 0, n - 1, l, r);
     }
 };
