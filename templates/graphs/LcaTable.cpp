@@ -27,7 +27,7 @@ public:
         depth = new int [n + 1], depth[0] = 0, Time = 0;
         outTime = new int [n + 1], searchArr.clear();
         inTime = new int [n + 1], EularTour(1, 0);
-        lst = new int [searchArr.size() + 1], Table = new int * [searchArr.size() + 1];
+        lst = new int [searchArr.size()], Table = new int*[searchArr.size()+1];
         Log = ceil(log2((int)searchArr.size())) + 2;
         for (int i = 0; i < searchArr.size(); i++) {
             lst[i] = depth[searchArr[i]];
