@@ -23,7 +23,7 @@ public:
 		}
 	}
 	T query(int l, int r){
-		int j = log2(r - l + 1);
+		int j = __lg(r - l + 1);
 		return myfunc(Table[l][j], Table[r - (1 << j) + 1][j]);
 	}
 };
