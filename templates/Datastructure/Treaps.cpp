@@ -39,7 +39,7 @@ private:
         push(left), push(right);
         if (left == NULL || right == NULL)
             node = (left != NULL) ? left : right;
-        else if (left->prior > left->prior)
+        else if (left->prior > right->prior)
             Merge(left->child[1], left->child[1], right), node = left;
         else Merge(right->child[0], left, right->child[0]), node = right;
         Update_size(node);
